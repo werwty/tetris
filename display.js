@@ -38,8 +38,6 @@ var Up = vec3.clone(defaultUp); // view up vector in world space
 // ASSIGNMENT HELPER FUNCTIONS
 
 
-
-
 // set up the webGL environment
 function setupWebGL() {
 
@@ -86,126 +84,193 @@ function loadModels(board) {
     // start with a sphere of radius 1 at origin
     // Returns verts, tris and normals.
     function makeCublet() {
-    const verticies = [
-                // Front face
-                0, 0,  0.1,
-                 0.1, 0,  0.1,
-                 0.1,  0.1,  0.1,
-                0,  0.1,  0.1,
+        const verticies = [
+            // Front face
+            0, 0, 0.08,
+            0.08, 0, 0.08,
+            0.08, 0.08, 0.08,
+            0, 0.08, 0.08,
 
-                // Back face
-                0, 0, 0,
-                0,  0.1, 0,
-                 0.1,  0.1, 0,
-                 0.1, 0, 0,
+            // Back face
+            0, 0, 0,
+            0, 0.08, 0,
+            0.08, 0.08, 0,
+            0.08, 0, 0,
 
-                // Top face
-                0,  0.1, 0,
-                0,  0.1,  0.1,
-                 0.1,  0.1,  0.1,
-                 0.1,  0.1, 0,
+            // Top face
+            0, 0.08, 0,
+            0, 0.08, 0.08,
+            0.08, 0.08, 0.08,
+            0.08, 0.08, 0,
 
-                // Bottom face
-                0, 0, 0,
-                 0.1, 0, 0,
-                 0.1, 0,  0.1,
-                0, 0,  0.1,
+            // Bottom face
+            0, 0, 0,
+            0.08, 0, 0,
+            0.08, 0, 0.08,
+            0, 0, 0.08,
 
-                // Right face
-                 0.1, 0, 0,
-                 0.1,  0.1, 0,
-                 0.1,  0.1,  0.1,
-                 0.1, 0,  0.1,
+            // Right face
+            0.08, 0, 0,
+            0.08, 0.08, 0,
+            0.08, 0.08, 0.08,
+            0.08, 0, 0.08,
 
-                // Left face
-                0, 0, 0,
-                0, 0,  0.1,
-                0,  0.1,  0.1,
-                0,  0.1, 0,
-              ];
-
-
-              const normals = [
-                // Front
-                 0.0,  0.0,  1.0,
-                 0.0,  0.0,  1.0,
-                 0.0,  0.0,  1.0,
-                 0.0,  0.0,  1.0,
-
-                // Back
-                 0.0,  0.0, -1.0,
-                 0.0,  0.0, -1.0,
-                 0.0,  0.0, -1.0,
-                 0.0,  0.0, -1.0,
-
-                // Top
-                 0.0,  1.0,  0.0,
-                 0.0,  1.0,  0.0,
-                 0.0,  1.0,  0.0,
-                 0.0,  1.0,  0.0,
-
-                // Bottom
-                 0.0, -1.0,  0.0,
-                 0.0, -1.0,  0.0,
-                 0.0, -1.0,  0.0,
-                 0.0, -1.0,  0.0,
-
-                // Right
-                 1.0,  0.0,  0.0,
-                 1.0,  0.0,  0.0,
-                 1.0,  0.0,  0.0,
-                 1.0,  0.0,  0.0,
-
-                // Left
-                -1.0,  0.0,  0.0,
-                -1.0,  0.0,  0.0,
-                -1.0,  0.0,  0.0,
-                -1.0,  0.0,  0.0
-              ];
-
-              const indices = [
-                0,  1,  2,      0,  2,  3,    // front
-                4,  5,  6,      4,  6,  7,    // back
-                8,  9,  10,     8,  10, 11,   // top
-                12, 13, 14,     12, 14, 15,   // bottom
-                16, 17, 18,     16, 18, 19,   // right
-                20, 21, 22,     20, 22, 23,   // left
-              ];
+            // Left face
+            0, 0, 0,
+            0, 0, 0.08,
+            0, 0.08, 0.08,
+            0, 0.08, 0,
+        ];
 
 
-            return ({vertices: verticies, normals: normals, triangles: indices});
+        const normals = [
+            // Front
+            0.0, 0.0, 1.0,
+            0.0, 0.0, 1.0,
+            0.0, 0.0, 1.0,
+            0.0, 0.0, 1.0,
+
+            // Back
+            0.0, 0.0, -1.0,
+            0.0, 0.0, -1.0,
+            0.0, 0.0, -1.0,
+            0.0, 0.0, -1.0,
+
+            // Top
+            0.0, 1.0, 0.0,
+            0.0, 1.0, 0.0,
+            0.0, 1.0, 0.0,
+            0.0, 1.0, 0.0,
+
+            // Bottom
+            0.0, -1.0, 0.0,
+            0.0, -1.0, 0.0,
+            0.0, -1.0, 0.0,
+            0.0, -1.0, 0.0,
+
+            // Right
+            1.0, 0.0, 0.0,
+            1.0, 0.0, 0.0,
+            1.0, 0.0, 0.0,
+            1.0, 0.0, 0.0,
+
+            // Left
+            -1.0, 0.0, 0.0,
+            -1.0, 0.0, 0.0,
+            -1.0, 0.0, 0.0,
+            -1.0, 0.0, 0.0
+        ];
+
+        const indices = [
+            0, 1, 2, 0, 2, 3,    // front
+            4, 5, 6, 4, 6, 7,    // back
+            8, 9, 10, 8, 10, 11,   // top
+            12, 13, 14, 12, 14, 15,   // bottom
+            16, 17, 18, 16, 18, 19,   // right
+            20, 21, 22, 20, 22, 23,   // left
+        ];
+
+
+        return ({vertices: verticies, normals: normals, triangles: indices});
 
 
     } // end make ellipsoid
 
 
-    var maxCorner = vec3.fromValues(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE); // bbox corner
-    var minCorner = vec3.fromValues(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE); // other corner
+
+    // make an ellipsoid, with numLongSteps longitudes.
+    // start with a sphere of radius 1 at origin
+    // Returns verts, tris and normals.
+    function makeBackground() {
+        const verticies = [
+
+            // Back face
+            -1, -1, 0,
+            -1, 1, 0,
+            1, 1, 0,
+            1, -1, 0,
+
+
+        ];
+
+
+        const normals = [
+            // Back
+            0.0, 0.0, -1.0,
+            0.0, 0.0, -1.0,
+            0.0, 0.0, -1.0,
+            0.0, 0.0, -1.0,
+
+
+        ];
+
+        const indices = [
+            0, 1, 2, 2, 3, 0,
+        ];
+
+
+        return ({vertices: verticies, normals: normals, triangles: indices});
+
+
+    } // end make ellipsoid
 
 
     // init ellipsoid highlighting, translation and rotation; update bbox
-    var ellipsoid; // current ellipsoid
-    var cubletModel; // current ellipsoid triangular model
-    var temp = vec3.create(); // an intermediate vec3
-    var minXYZ = vec3.create(), maxXYZ = vec3.create();  // min/max xyz from ellipsoid
+    var cublet; // current ellipsoid
+    var cubletModel; // current cublet triangular model
+
+
     numberCublets = 0;
+  //
+  //   var backgroundModel = makeBackground(); //background triangle model
+  //   var background = {
+  //                   translation: vec3.fromValues(0,0, -.1),
+  //                   ambient: [1,1,1],
+  //                   diffuse: [1, 1, 1],
+  //                   specular: [0, 0, 0],
+  //                   n: 11,
+  //                   xAxis: vec3.fromValues(1, 0, 0),
+  //                   yAxis: vec3.fromValues(0, 1, 0),
+  //                   center: vec3.fromValues(0, 0, 0),
+  //                   on: false
+  //
+  //               }
+  //               inputEllipsoids[numberCublets] = background
+  //
+  // // send the ellipsoid vertex coords and normals to webGL
+  //   vertexBuffers.push(gl.createBuffer()); // init empty webgl ellipsoid vertex coord buffer
+  //   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[vertexBuffers.length - 1]); // activate that buffer
+  //   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(backgroundModel.vertices), gl.STATIC_DRAW); // data in
+  //   normalBuffers.push(gl.createBuffer()); // init empty webgl ellipsoid vertex normal buffer
+  //   gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffers[normalBuffers.length - 1]); // activate that buffer
+  //   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(backgroundModel.normals), gl.STATIC_DRAW); // data in
+  //
+  //   triSetSizes.push(backgroundModel.triangles.length);
+  //
+  //   // send the triangle indices to webGL
+  //   triangleBuffers.push(gl.createBuffer()); // init empty triangle index buffer
+  //   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleBuffers[triangleBuffers.length - 1]); // activate that buffer
+  //   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(backgroundModel.triangles), gl.STATIC_DRAW); // data in
+  //
+  //   numberCublets++;
+
 
     board.forEach((row, y) => {
         row.forEach((value, x) => {
-            if (value!=0){
-                ellipsoid = {
-                    translation:  vec3.fromValues((5-x)/10, (10-y)/10, 0),
+            if (value != 0) {
+                cublet = {
+                    translation: vec3.fromValues((5 - x) / 10, (10 - y) / 10, 0),
                     ambient: value,
-                    diffuse:[0.6,0.4,0.4],
-                    specular:[.3,.3,.3],
-                    n:11,
+                    diffuse: [1, 1, 1],
+                    specular: [.3, .3, .3],
+                    n: 11,
                     xAxis: vec3.fromValues(1, 0, 0),
                     yAxis: vec3.fromValues(0, 1, 0),
-                    center: vec3.fromValues(0,0,0),
+                    center: vec3.fromValues(0, 0, 0),
                     on: false
 
                 }
-                inputEllipsoids[numberCublets] = ellipsoid
+                inputEllipsoids[numberCublets] = cublet
 
 
                 // make the ellipsoid model
@@ -305,7 +370,7 @@ function setupShaders() {
             
             // combine to output color
             vec3 colorOut = ambient + diffuse + specular; // no specular yet
-            gl_FragColor = vec4(colorOut, .5); 
+            gl_FragColor = vec4(colorOut, .9); 
             
         }
     `;
@@ -425,6 +490,8 @@ function renderModels() {
     // render each ellipsoid
     var ellipsoid, instanceTransform = mat4.create(); // the current ellipsoid and material
 
+
+
     for (var whichEllipsoid = 0; whichEllipsoid < numberCublets; whichEllipsoid++) {
         ellipsoid = inputEllipsoids[whichEllipsoid];
 
@@ -449,5 +516,6 @@ function renderModels() {
         // draw a transformed instance of the ellipsoid
         gl.drawElements(gl.TRIANGLES, triSetSizes[numTriangleSets + whichEllipsoid], gl.UNSIGNED_SHORT, 0); // render
     } // end for each ellipsoid
-} // end render model
 
+
+} // end render model

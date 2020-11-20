@@ -6,21 +6,8 @@ const debug=false
 // does stuff when keys are pressed
 function handleKeyDown(event) {
 
-    const modelEnum = {TRIANGLES: "triangles", ELLIPSOID: "ellipsoid"}; // enumerated model type
     const dirEnum = {NEGATIVE: -1, POSITIVE: 1}; // enumerated rotation direction
 
-    function highlightModel(modelType, whichModel) {
-        if(debug){
-        if (handleKeyDown.modelOn != null)
-            handleKeyDown.modelOn.on = false;
-        handleKeyDown.whichOn = whichModel;
-        if (modelType == modelEnum.TRIANGLES)
-            handleKeyDown.modelOn = inputTriangles[whichModel];
-        else
-            handleKeyDown.modelOn = inputEllipsoids[whichModel];
-        handleKeyDown.modelOn.on = true;
-        }
-    } // end highlight model
 
     function translateModel(offset) {
         if(debug) {
@@ -65,12 +52,12 @@ function handleKeyDown(event) {
             redraw()
             break;
         case "ArrowUp": // select next ellipsoid
-            highlightModel(modelEnum.ELLIPSOID, (handleKeyDown.whichOn + 1) % numberCublets);
+            board.rotate()
+            redraw()
             break;
         case "ArrowDown": // select previous ellipsoid
             board.drop()
             redraw()
-            highlightModel(modelEnum.ELLIPSOID, (handleKeyDown.whichOn > 0) ? handleKeyDown.whichOn - 1 : numberCublets - 1);
             break;
 
         // view change
@@ -124,74 +111,19 @@ function handleKeyDown(event) {
             Up = vec3.copy(Up, defaultUp);
             break;
 
-        // model transformation
-        case "KeyK": // translate left, rotate left with shift
-            if (event.getModifierState("Shift"))
-                rotateModel(Up, dirEnum.NEGATIVE);
-            else
-                translateModel(vec3.scale(temp, viewRight, viewDelta));
-            break;
-        case "Semicolon": // translate right, rotate right with shift
-            if (event.getModifierState("Shift"))
-                rotateModel(Up, dirEnum.POSITIVE);
-            else
-                translateModel(vec3.scale(temp, viewRight, -viewDelta));
-            break;
-        case "KeyL": // translate backward, rotate up with shift
-            if (event.getModifierState("Shift"))
-                rotateModel(viewRight, dirEnum.POSITIVE);
-            else
-                translateModel(vec3.scale(temp, lookAt, -viewDelta));
-            break;
-        case "KeyO": // translate forward, rotate down with shift
-            if (event.getModifierState("Shift"))
-                rotateModel(viewRight, dirEnum.NEGATIVE);
-            else
-                translateModel(vec3.scale(temp, lookAt, viewDelta));
-            break;
-        case "KeyI": // translate up, rotate counterclockwise with shift
-            if (event.getModifierState("Shift"))
-                rotateModel(lookAt, dirEnum.POSITIVE);
-            else
-                translateModel(vec3.scale(temp, Up, viewDelta));
-            break;
-        case "KeyP": // translate down, rotate clockwise with shift
-            if (event.getModifierState("Shift"))
-                rotateModel(lookAt, dirEnum.NEGATIVE);
-            else
-                translateModel(vec3.scale(temp, Up, -viewDelta));
-            break;
-        case "Backspace": // reset model transforms to default
-            for (var whichTriSet = 0; whichTriSet < numTriangleSets; whichTriSet++) {
-                vec3.set(inputTriangles[whichTriSet].translation, 0, 0, 0);
-                vec3.set(inputTriangles[whichTriSet].xAxis, 1, 0, 0);
-                vec3.set(inputTriangles[whichTriSet].yAxis, 0, 1, 0);
-            } // end for all triangle sets
-            for (var whichEllipsoid = 0; whichEllipsoid < numberCublets; whichEllipsoid++) {
-                vec3.set(inputEllipsoids[whichEllipsoid].translation, 0, 0, 0);
-                vec3.set(inputEllipsoids[whichTriSet].xAxis, 1, 0, 0);
-                vec3.set(inputEllipsoids[whichTriSet].yAxis, 0, 1, 0);
-            } // end for all ellipsoids
-            break;
-        case "KeyB":
-            if (modulate) {
-                modulate = false;
-            } else {
-                modulate = true
-            }
-            break;
 
     } // end switch
 } // end handleKeyDown
 
 function redraw(){
-            loadModels(board.board);
-        renderModels()
+
     if(board.game_over){
-
         alert("Game Over!")
-          clearInterval(game_loop);
+        clearInterval(game_loop);
 
+    }else{
+            loadModels(board.board);
+    renderModels()
     }
 
 }
