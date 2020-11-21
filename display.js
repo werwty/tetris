@@ -10,6 +10,7 @@ var rotateTheta = Math.PI / 50; // how much to rotate models by with each key pr
 
 /* webgl and geometry data */
 var gl = null; // the all powerful gl object. It's all here folks!
+var shaderProgram;
 var numTriangleSets = 0; // how many triangle sets in input scene
 var inputEllipsoids = []; // the ellipsoid data as loaded from input files
 var numberCublets = 0; // how many ellipsoids in the input scene
@@ -45,16 +46,16 @@ function setupWebGL() {
     document.onkeydown = handleKeyDown; // call this when key pressed
 
 
-    var imageCanvas = document.getElementById("myImageCanvas"); // create a 2d canvas
-    var cw = imageCanvas.width, ch = imageCanvas.height;
-    imageContext = imageCanvas.getContext("2d");
-    var bkgdImage = new Image();
-    bkgdImage.crossOrigin = "Anonymous";
-    bkgdImage.src = "https://ncsucgclass.github.io/prog3/sky.jpg";
-    bkgdImage.onload = function () {
-        var iw = bkgdImage.width, ih = bkgdImage.height;
-        imageContext.drawImage(bkgdImage, 0, 0, iw, ih, 0, 0, cw, ch);
-    }
+    //var imageCanvas = document.getElementById("myImageCanvas"); // create a 2d canvas
+    //imageContext = imageCanvas.getContext("2d");
+
+    //var bkgdImage = new Image();
+    //bkgdImage.crossOrigin = "Anonymous";
+    // bkgdImage.src = "https://ncsucgclass.github.io/prog3/sky.jpg";
+    // bkgdImage.onload = function () {
+    //     var iw = bkgdImage.width, ih = bkgdImage.height;
+    //     imageContext.drawImage(bkgdImage, 0, 0, iw, ih, 0, 0, cw, ch);
+    // }
 
 
     // Get the canvas and context
@@ -65,7 +66,8 @@ function setupWebGL() {
         if (gl == null) {
             throw "unable to create gl context -- is your browser gl ready?";
         } else {
-            //gl.clearColor(0.0, 0.0, 0.0, 1.0); // use black when we clear the frame buffer
+            gl.clearColor(0, 0, 0, 1);
+
             gl.clearDepth(1.0); // use max when we clear the depth buffer
             gl.enable(gl.DEPTH_TEST); // use hidden surface removal (with zbuffering)
         }
@@ -267,7 +269,47 @@ function loadModels(board) {
                     xAxis: vec3.fromValues(1, 0, 0),
                     yAxis: vec3.fromValues(0, 1, 0),
                     center: vec3.fromValues(0, 0, 0),
-                    on: false
+                    on: false,
+                    alpha: 0.9
+
+                }
+                inputEllipsoids[numberCublets] = cublet
+
+
+                // make the ellipsoid model
+                cubletModel = makeCublet();
+
+                // send the ellipsoid vertex coords and normals to webGL
+                vertexBuffers.push(gl.createBuffer()); // init empty webgl ellipsoid vertex coord buffer
+                gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[vertexBuffers.length - 1]); // activate that buffer
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cubletModel.vertices), gl.STATIC_DRAW); // data in
+                normalBuffers.push(gl.createBuffer()); // init empty webgl ellipsoid vertex normal buffer
+                gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffers[normalBuffers.length - 1]); // activate that buffer
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cubletModel.normals), gl.STATIC_DRAW); // data in
+
+                triSetSizes.push(cubletModel.triangles.length);
+
+                // send the triangle indices to webGL
+                triangleBuffers.push(gl.createBuffer()); // init empty triangle index buffer
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleBuffers[triangleBuffers.length - 1]); // activate that buffer
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubletModel.triangles), gl.STATIC_DRAW); // data in
+
+                numberCublets++;
+
+            }
+
+            else {
+                cublet = {
+                    translation: vec3.fromValues((5 - x) / 10, (10 - y) / 10, 0),
+                    ambient: [.1,.1,.1],
+                    diffuse: [.05,.05,.05],
+                    specular: [0, 0, 0],
+                    n: 0,
+                    xAxis: vec3.fromValues(1, 0, 0),
+                    yAxis: vec3.fromValues(0, 1, 0),
+                    center: vec3.fromValues(0, 0, 0),
+                    on: false,
+                    alpha: 0.9
 
                 }
                 inputEllipsoids[numberCublets] = cublet
@@ -347,6 +389,9 @@ function setupShaders() {
         uniform vec3 uSpecular; // the specular reflectivity
         uniform float uShininess; // the specular exponent
         
+        uniform float uAlpha;
+
+        
         // geometry properties
         varying vec3 vWorldPos; // world xyz of fragment
         varying vec3 vVertexNormal; // normal of fragment
@@ -370,7 +415,7 @@ function setupShaders() {
             
             // combine to output color
             vec3 colorOut = ambient + diffuse + specular; // no specular yet
-            gl_FragColor = vec4(colorOut, .9); 
+            gl_FragColor = vec4(colorOut, uAlpha); 
             
         }
     `;
@@ -391,7 +436,7 @@ function setupShaders() {
             throw "error during vertex shader compile: " + gl.getShaderInfoLog(vShader);
             gl.deleteShader(vShader);
         } else { // no compile errors
-            var shaderProgram = gl.createProgram(); // create the single shader program
+            shaderProgram = gl.createProgram(); // create the single shader program
             gl.attachShader(shaderProgram, fShader); // put frag shader in program
             gl.attachShader(shaderProgram, vShader); // put vertex shader in program
             gl.linkProgram(shaderProgram); // link program into gl context
@@ -410,6 +455,10 @@ function setupShaders() {
                 // locate vertex uniforms
                 mMatrixULoc = gl.getUniformLocation(shaderProgram, "umMatrix"); // ptr to mmat
                 pvmMatrixULoc = gl.getUniformLocation(shaderProgram, "upvmMatrix"); // ptr to pvmmat
+
+
+                shaderProgram.alphaUniform = gl.getUniformLocation(shaderProgram, "uAlpha");
+
 
                 // locate fragment uniforms
                 var eyePositionULoc = gl.getUniformLocation(shaderProgram, "uEyePosition"); // ptr to eye position
@@ -488,12 +537,12 @@ function renderModels() {
 
 
     // render each ellipsoid
-    var ellipsoid, instanceTransform = mat4.create(); // the current ellipsoid and material
+    //var ellipsoid, instanceTransform = mat4.create(); // the current ellipsoid and material
 
 
 
     for (var whichEllipsoid = 0; whichEllipsoid < numberCublets; whichEllipsoid++) {
-        ellipsoid = inputEllipsoids[whichEllipsoid];
+        var ellipsoid = inputEllipsoids[whichEllipsoid];
 
         // define model transform, premult with pvmMatrix, feed to vertex shader
         makeModelTransform(ellipsoid);
@@ -515,6 +564,9 @@ function renderModels() {
 
         // draw a transformed instance of the ellipsoid
         gl.drawElements(gl.TRIANGLES, triSetSizes[numTriangleSets + whichEllipsoid], gl.UNSIGNED_SHORT, 0); // render
+        gl.uniform1f(shaderProgram.alphaUniform, ellipsoid.alpha);
+
+
     } // end for each ellipsoid
 
 

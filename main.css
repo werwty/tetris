@@ -1,0 +1,60 @@
+#title{
+    color: white;
+      width: 100%;
+   text-align:center;
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+body{
+    background-color: black;
+    color: white;
+  font-size: 50px;
+
+}
+
+#myWebGLCanvas {
+   /*display: inline;*/
+    border: 1px solid blue;
+
+}
+
+
+.flex-container {
+    display: flex;
+}
+
+#tetris-flex {
+    flex: 2;
+    /*border: 2px solid yellow;*/
+        margin-left: 100px;
+
+}
+
+.flex-child {
+    flex: 2;
+    /*border: 2px solid yellow;*/
+}
+
+.flex-child:first-child {
+}
+
+#retry{
+    border: 2px solid white;
+    color: black;
+    background-color: white;
+
+  padding: 24px 48px;
+  text-align: center;
+  display: inline-block;
+  font-size: 50px;
+margin-top: 20px;
+
+
+
+}
+
+#retry:hover {
+  background-color: #4CAF50; /* Green */
+  color: white;
+}

@@ -1,7 +1,6 @@
-
 var board;
 var game_loop;
-const debug=false
+const debug = false
 
 // does stuff when keys are pressed
 function handleKeyDown(event) {
@@ -10,7 +9,7 @@ function handleKeyDown(event) {
 
 
     function translateModel(offset) {
-        if(debug) {
+        if (debug) {
             if (handleKeyDown.modelOn != null)
                 vec3.add(handleKeyDown.modelOn.translation, handleKeyDown.modelOn.translation, offset);
         }
@@ -27,6 +26,7 @@ function handleKeyDown(event) {
             } // end if there is a highlighted model
         } // end rotate model
     }
+
     // set up needed view params
     var lookAt = vec3.create(), viewRight = vec3.create(), temp = vec3.create(); // lookat, right & temp vectors
     lookAt = vec3.normalize(lookAt, vec3.subtract(temp, Center, Eye)); // get lookat vector
@@ -44,7 +44,7 @@ function handleKeyDown(event) {
             redraw()
             break;
         case "ArrowRight": // select next triangle set
-           board.move_right()
+            board.move_right()
             redraw()
             break;
         case "ArrowLeft": // select previous triangle set
@@ -115,19 +115,33 @@ function handleKeyDown(event) {
     } // end switch
 } // end handleKeyDown
 
-function redraw(){
+function redraw() {
 
-    if(board.game_over){
+    if (board.game_over) {
         alert("Game Over!")
         clearInterval(game_loop);
 
-    }else{
-            loadModels(board.board);
-    renderModels()
+    } else {
+        loadModels(board.board);
+        renderModels()
     }
 
 }
 
+function reset() {
+    console.log("resetting board")
+
+
+    board.reset()
+
+    board.new_piece()
+    board.game_over = false
+    redraw();
+
+    // This is necessray otherwise space will trigger retry again
+    document.getElementById('retry').blur();
+
+}
 
 function main() {
     document.onkeydown = handleKeyDown; // call this when key pressed
@@ -152,17 +166,13 @@ function main() {
 //    drawScene(gl, programInfo, buffers, deltaTime);
 
 
+    function loop() {
+        board.drop();
+        redraw()
 
-  function loop() {
-    board.drop();
-    redraw()
+    }
 
-  }
-
-  game_loop = setInterval(loop, 500);
-
-
-
+    game_loop = setInterval(loop, 500);
 
 
 }

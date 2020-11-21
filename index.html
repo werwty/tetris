@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="UTF-8">
-    <title>Prog 3: Rasterization Solution</title>
-    
-    <link type="text/css" rel="stylesheet" href="rasterize.css">
+    <title>Prog 5: Tetris</title>
+
+    <link type="text/css" rel="stylesheet" href="main.css">
+
 
     <script type="text/javascript" src="gl-matrix.js"></script>
 
@@ -13,10 +14,28 @@
 
     <script type="text/javascript" src="main.js"></script>
 
-  </head>
+</head>
 
-  <body onload="main();">
-    <canvas id="myImageCanvas" width="512" height="512"></canvas>
-    <canvas id="myWebGLCanvas" width="512" height="512"></canvas>
-  </body>
+<body onload="main();">
+<div id="title">Tetris</div>
+
+
+
+<div class="flex-container">
+
+  <div id="tetris-flex" class="flex-child">
+        <canvas id="myWebGLCanvas" width="768" height="768"></canvas>
+  </div>
+
+  <div class="flex-child">
+<div>Score: <span id="score">0</span></div>
+    <button id="retry" onclick="reset()">Retry</button>
+  </div>
+
+</div>
+
+
+
+
+</body>
 </html>
