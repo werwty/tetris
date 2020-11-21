@@ -20,21 +20,21 @@
 <div id="title">Tetris</div>
 
 
-
 <div class="flex-container">
 
-  <div id="tetris-flex" class="flex-child">
+    <div id="tetris-flex" class="flex-child">
         <canvas id="myWebGLCanvas" width="768" height="768"></canvas>
-  </div>
+    </div>
 
-  <div class="flex-child">
-<div>Score: <span id="score">0</span></div>
-    <button id="retry" onclick="reset()">Retry</button>
-  </div>
+    <div class="flex-child">
+
+        <div id="gameover">&nbsp;</div>
+
+        <div>Score: <span id="score"></span></div>
+        <button id="retry" onclick="reset()">Retry</button>
+    </div>
 
 </div>
-
-
 
 
 </body>

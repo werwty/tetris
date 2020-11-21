@@ -54,6 +54,10 @@ margin-top: 20px;
 
 }
 
+#gameover{
+    color:red;
+}
+
 #retry:hover {
   background-color: #4CAF50; /* Green */
   color: white;

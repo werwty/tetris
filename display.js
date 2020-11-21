@@ -38,55 +38,7 @@ var Up = vec3.clone(defaultUp); // view up vector in world space
 
 // ASSIGNMENT HELPER FUNCTIONS
 
-
-// set up the webGL environment
-function setupWebGL() {
-
-    // Set up keys
-    document.onkeydown = handleKeyDown; // call this when key pressed
-
-
-    //var imageCanvas = document.getElementById("myImageCanvas"); // create a 2d canvas
-    //imageContext = imageCanvas.getContext("2d");
-
-    //var bkgdImage = new Image();
-    //bkgdImage.crossOrigin = "Anonymous";
-    // bkgdImage.src = "https://ncsucgclass.github.io/prog3/sky.jpg";
-    // bkgdImage.onload = function () {
-    //     var iw = bkgdImage.width, ih = bkgdImage.height;
-    //     imageContext.drawImage(bkgdImage, 0, 0, iw, ih, 0, 0, cw, ch);
-    // }
-
-
-    // Get the canvas and context
-    var canvas = document.getElementById("myWebGLCanvas"); // create a js canvas
-    gl = canvas.getContext("webgl"); // get a webgl object from it
-
-    try {
-        if (gl == null) {
-            throw "unable to create gl context -- is your browser gl ready?";
-        } else {
-            gl.clearColor(0, 0, 0, 1);
-
-            gl.clearDepth(1.0); // use max when we clear the depth buffer
-            gl.enable(gl.DEPTH_TEST); // use hidden surface removal (with zbuffering)
-        }
-    } // end try
-
-    catch (e) {
-        console.log(e);
-    } // end catch
-
-} // end setupWebGL
-
-// read models in, load them into webgl buffers
-function loadModels(board) {
-
-    // make an ellipsoid, with numLongSteps longitudes.
-    // start with a sphere of radius 1 at origin
-    // Returns verts, tris and normals.
-    function makeCublet() {
-        const verticies = [
+const verticies = [
             // Front face
             0, 0, 0.08,
             0.08, 0, 0.08,
@@ -173,10 +125,49 @@ function loadModels(board) {
         ];
 
 
-        return ({vertices: verticies, normals: normals, triangles: indices});
+        const default_cublet= ({vertices: verticies, normals: normals, triangles: indices});
+// set up the webGL environment
+function setupWebGL() {
+
+    // Set up keys
+    document.onkeydown = handleKeyDown; // call this when key pressed
 
 
-    } // end make ellipsoid
+    //var imageCanvas = document.getElementById("myImageCanvas"); // create a 2d canvas
+    //imageContext = imageCanvas.getContext("2d");
+
+    //var bkgdImage = new Image();
+    //bkgdImage.crossOrigin = "Anonymous";
+    // bkgdImage.src = "https://ncsucgclass.github.io/prog3/sky.jpg";
+    // bkgdImage.onload = function () {
+    //     var iw = bkgdImage.width, ih = bkgdImage.height;
+    //     imageContext.drawImage(bkgdImage, 0, 0, iw, ih, 0, 0, cw, ch);
+    // }
+
+
+    // Get the canvas and context
+    var canvas = document.getElementById("myWebGLCanvas"); // create a js canvas
+    gl = canvas.getContext("webgl"); // get a webgl object from it
+
+    try {
+        if (gl == null) {
+            throw "unable to create gl context -- is your browser gl ready?";
+        } else {
+            gl.clearColor(0, 0, 0, 1);
+
+            gl.clearDepth(1.0); // use max when we clear the depth buffer
+            gl.enable(gl.DEPTH_TEST); // use hidden surface removal (with zbuffering)
+        }
+    } // end try
+
+    catch (e) {
+        console.log(e);
+    } // end catch
+
+} // end setupWebGL
+
+// read models in, load them into webgl buffers
+function loadModels(board) {
 
 
 
@@ -264,8 +255,8 @@ function loadModels(board) {
                     translation: vec3.fromValues((5 - x) / 10, (10 - y) / 10, 0),
                     ambient: value,
                     diffuse: [1, 1, 1],
-                    specular: [.3, .3, .3],
-                    n: 11,
+                    specular: [0, 0, 0],
+                    n: 1,
                     xAxis: vec3.fromValues(1, 0, 0),
                     yAxis: vec3.fromValues(0, 1, 0),
                     center: vec3.fromValues(0, 0, 0),
@@ -277,7 +268,7 @@ function loadModels(board) {
 
 
                 // make the ellipsoid model
-                cubletModel = makeCublet();
+                cubletModel = default_cublet;
 
                 // send the ellipsoid vertex coords and normals to webGL
                 vertexBuffers.push(gl.createBuffer()); // init empty webgl ellipsoid vertex coord buffer
@@ -309,14 +300,14 @@ function loadModels(board) {
                     yAxis: vec3.fromValues(0, 1, 0),
                     center: vec3.fromValues(0, 0, 0),
                     on: false,
-                    alpha: 0.9
+                    alpha: 0.84
 
                 }
                 inputEllipsoids[numberCublets] = cublet
 
 
                 // make the ellipsoid model
-                cubletModel = makeCublet();
+                cubletModel = default_cublet;
 
                 // send the ellipsoid vertex coords and normals to webGL
                 vertexBuffers.push(gl.createBuffer()); // init empty webgl ellipsoid vertex coord buffer

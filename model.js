@@ -42,19 +42,48 @@ class Board {
 
         this.new_piece()
         this.game_over = false
+        this.score = 0
+
     }
 
     new_piece() {
+        var lines_cleared = this.clear_lines()
+        this.score = this.score+lines_cleared;
         this.active_piece = new Tetromino()
         this.active_x = 3
         this.active_y = 0
+        if (this.active_piece.name == 'I'){
+            this.active_y = -2
+        }
+
+
         if (this.valid_move(this.active_x, this.active_y)) {
             this.load_piece()
         } else {
-            //this.load_piece()
-
             this.game_over = true
         }
+    }
+
+    clear_lines() {
+        var number_lines_cleared = 0;
+        for (var y = 0; y < this.board_height; y++) {
+            var line_clear = true
+            for (var x = 0; x < this.board_width; x++) {
+                if(this.board[y][x] ==0){
+                    line_clear=false
+                }
+            }
+            if(line_clear){
+                number_lines_cleared++
+
+                for(var j=y;j>1; j--){
+                    this.board[j] = JSON.parse(JSON.stringify(this.board[j-1]))
+                }
+                this.board[0] =  Array(this.board_width).fill(0)
+                debugger
+            }
+        }
+        return number_lines_cleared
     }
 
     // Reset board to empty array
@@ -167,25 +196,25 @@ class Board {
     }
 
     rotate() {
-
         function get_rotated_offsets(rotated_orientation, active_orientation, offset, name) {
             var offset_rotated;
             var offset_active;
-            if (name == 'I'){
+            if (name == 'I') {
                 offset_rotated = offsets_i[rotated_orientation][offset]
                 offset_active = offsets_i[active_orientation][offset]
 
-            }else {
+            } else {
                 offset_rotated = offsets_jlstz[rotated_orientation][offset]
                 offset_active = offsets_jlstz[active_orientation][offset]
             }
 
             var offset_x = offset_active[0] - offset_rotated[0]
-            var offset_y =  offset_active[1] - offset_rotated[1]
+            var offset_y = offset_active[1] - offset_rotated[1]
 
             return [offset_x, offset_y]
         }
-            this.clear_piece();
+
+        this.clear_piece();
 
 
         // gotta hard copy
@@ -197,26 +226,18 @@ class Board {
 
         for (var i = 0; i < 5; i++) {
             var offsets = get_rotated_offsets(rotated_piece.orientation, this.active_piece.orientation, i, this.active_piece.name)
-            if(this.valid_move(this.active_x+offsets[0], this.active_y+offsets[1], rotated_piece)) {
-                this.active_x=this.active_x+offsets[0]
-                this.active_y=this.active_y+offsets[1]
-                is_valid_rotation=true;
+            if (this.valid_move(this.active_x + offsets[0], this.active_y + offsets[1], rotated_piece)) {
+                this.active_x = this.active_x + offsets[0]
+                this.active_y = this.active_y + offsets[1]
+                is_valid_rotation = true;
                 break;
             }
         }
 
-
-        //if(this.valid_move(this.active_x))
-
-
-        if(is_valid_rotation) {
-
-
+        if (is_valid_rotation) {
             this.active_piece.rotate();
-
         }
-            this.load_piece()
-
+        this.load_piece()
     }
 }
 

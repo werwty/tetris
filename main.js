@@ -116,9 +116,11 @@ function handleKeyDown(event) {
 } // end handleKeyDown
 
 function redraw() {
+    document.getElementById('score').innerHTML = board.score;
 
     if (board.game_over) {
-        alert("Game Over!")
+            document.getElementById('gameover').innerHTML = "Game Over! Press Retry to Continue";
+
         clearInterval(game_loop);
 
     } else {
@@ -130,16 +132,32 @@ function redraw() {
 
 function reset() {
     console.log("resetting board")
+            document.getElementById('gameover').innerHTML = "&nbsp;";
+
+if(board.game_over){
+
+    function loop() {
+        board.drop();
+        redraw()
+
+    }
+
+    game_loop = setInterval(loop, 600);
 
 
+}
     board.reset()
 
     board.new_piece()
     board.game_over = false
+    board.score=0
+
     redraw();
 
     // This is necessray otherwise space will trigger retry again
     document.getElementById('retry').blur();
+
+
 
 }
 
@@ -172,7 +190,7 @@ function main() {
 
     }
 
-    game_loop = setInterval(loop, 500);
+    game_loop = setInterval(loop, 600);
 
 
 }
