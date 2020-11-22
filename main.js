@@ -190,7 +190,7 @@ function main() {
 
     }
 
-    game_loop = setInterval(loop, 600);
+    //game_loop = setInterval(loop, 600);
 
 
 }

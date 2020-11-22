@@ -261,46 +261,46 @@ class Tetromino {
         {
             'name': 'I',
             'shape': [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 1, 1, 1, 1], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
-            'color': [0, 1, 1],
+            'color': [49/255, 179/255, 211/255],
             'orientation': orientations[0]
 
         },
         {
             'name': 'T',
             'shape': [[0, 1, 0], [1, 1, 1], [0, 0, 0]],
-            'color': [148 / 255, 0 / 255, 211 / 255],
+            'color': [140 / 255, 0 / 255, 184 / 255],
             'orientation': orientations[0]
 
         },
         {
             'name': 'L',
             'shape': [[0, 0, 1], [1, 1, 1], [0, 0, 0]],
-            'color': [1, 90 / 255, 0 / 255],
+            'color': [237/255, 151 / 255, 31 / 255],
             'orientation': orientations[0]
 
         },
         {
             'name': 'J',
             'shape': [[1, 0, 0], [1, 1, 1], [0, 0, 0]],
-            'color': [20 / 255, 20 / 255, 175 / 255],
+            'color': [47 / 255, 49 / 255, 209 / 255],
             'orientation': orientations[0]
         },
         {
             'name': 'Z',
             'shape': [[1, 1, 0], [0, 1, 1], [0, 0, 0]],
-            'color': [1, 0, 0],
+            'color': [206/255,  26/255, 26/255],
             'orientation': orientations[0]
         },
         {
             'name': 'S',
             'shape': [[0, 1, 1], [1, 1, 0], [0, 0, 0]],
-            'color': [0 / 255, 1, 0 / 255],
+            'color': [17/ 255, 184/255, 0 / 255],
             'orientation': orientations[0]
         },
         {
             'name': 'O',
             'shape': [[0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]],
-            'color': [1, 1, 0],
+            'color': [1, 209/255, 0],
             'orientation': orientations[0]
         }]
 
