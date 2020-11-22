@@ -34,12 +34,28 @@ var offsets_i = {
 
 var orientations = ['0', 'R', '2', 'L']
 
+var default_bag = ['I', 'T', 'L', 'J', 'S', 'Z', 'O']
+
+function get_permutated_bag(){
+    var bag =JSON.parse(JSON.stringify(default_bag))
+    for (var i = bag.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = bag[i];
+        bag[i] = bag[j];
+        bag[j] = temp;
+    }
+    return bag
+
+}
 class Board {
     constructor() {
         this.board_height = 20
         this.board_width = 10
         this.reset()
+        this.bag = get_permutated_bag()
+        this.next_bag = get_permutated_bag()
 
+        this.next_piece = new Tetromino(this.bag.pop())
         this.new_piece()
         this.game_over = false
         this.score = 0
@@ -49,7 +65,6 @@ class Board {
         var coordinates = []
         this.active_piece.shape.forEach((row, y) => {
             row.forEach((value, x) => {
-
                 if (value != 0) {
                     coordinates.push([this.active_x + x, this.active_y + y])
                 }
@@ -58,9 +73,15 @@ class Board {
         return coordinates
     }
     new_piece() {
+        if(this.bag.length ==0){
+            this.bag = this.next_bag
+            this.next_bag= get_permutated_bag()
+        }
+        this.active_piece = this.next_piece
+        this.next_piece = new Tetromino(this.bag.pop())
+
         var lines_cleared = this.clear_lines()
         this.score = this.score+lines_cleared;
-        this.active_piece = new Tetromino()
         this.active_x = 3
         this.active_y = 0
         if (this.active_piece.name == 'I'){

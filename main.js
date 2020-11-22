@@ -129,22 +129,31 @@ function redraw(redraw_all = false) {
     }
 
     const canvasNext = document.getElementById('next');
-const ctxNext = canvasNext.getContext('2d');
+    const ctxNext = canvasNext.getContext('2d');
 // Size canvas for four blocks.
-ctxNext.canvas.width = 5 * 40;
-ctxNext.canvas.height = 5 * 40;
-ctxNext.scale(40, 40);
+    ctxNext.canvas.width = 5 * 40;
+    ctxNext.canvas.height = 5 * 40;
+    ctxNext.scale(40, 40);
 
-  ctxNext.fillStyle = 'blue';
-  ctxNext.fillRect(1,1, 1, 1);
-    // this.shape.forEach((row, y) => {
-    //   row.forEach((value, x) => {
-    //     if (value > 0) {
-    //       this.ctx.fillRect(this.x + x, this.y + y, 1, 1);
-    //     }
-    //   });
-    // });
+    ctxNext.fillStyle = 'black';
+    ctxNext.fillRect(1, 1, 1, 1);
 
+    board.next_piece.shape.forEach((row, y) => {
+       row.forEach((value, x) => {
+           ctxNext.fillRect( x,  y, 1, 1);
+
+       });
+     });
+
+        ctxNext.fillStyle = 'white';
+
+    board.next_piece.shape.forEach((row, y) => {
+       row.forEach((value, x) => {
+         if (value > 0) {
+           ctxNext.fillRect( x,  y, 1, 1);
+         }
+       });
+     });
 
 
 }
