@@ -41,7 +41,7 @@ function handleKeyDown(event) {
         // model selection
         case "Space":
             board.hard_drop()
-            redraw()
+            redraw(true)
             break;
         case "ArrowRight": // select next triangle set
             board.move_right()
@@ -56,8 +56,8 @@ function handleKeyDown(event) {
             redraw()
             break;
         case "ArrowDown": // select previous ellipsoid
-            board.drop()
-            redraw()
+            var do_redraw = board.drop()
+            redraw(do_redraw)
             break;
 
         // view change
@@ -115,48 +115,66 @@ function handleKeyDown(event) {
     } // end switch
 } // end handleKeyDown
 
-function redraw() {
+function redraw(redraw_all = false) {
     document.getElementById('score').innerHTML = board.score;
 
     if (board.game_over) {
-            document.getElementById('gameover').innerHTML = "Game Over! Press Retry to Continue";
+        document.getElementById('gameover').innerHTML = "Game Over! Press Retry to Continue";
 
         clearInterval(game_loop);
 
     } else {
-        loadModels(board.board);
+        loadModels(board.board, board.get_active_piece_coordinates(), redraw_all);
         renderModels()
     }
+
+    const canvasNext = document.getElementById('next');
+const ctxNext = canvasNext.getContext('2d');
+// Size canvas for four blocks.
+ctxNext.canvas.width = 5 * 40;
+ctxNext.canvas.height = 5 * 40;
+ctxNext.scale(40, 40);
+
+  ctxNext.fillStyle = 'blue';
+  ctxNext.fillRect(1,1, 1, 1);
+    // this.shape.forEach((row, y) => {
+    //   row.forEach((value, x) => {
+    //     if (value > 0) {
+    //       this.ctx.fillRect(this.x + x, this.y + y, 1, 1);
+    //     }
+    //   });
+    // });
+
+
 
 }
 
 function reset() {
     console.log("resetting board")
-            document.getElementById('gameover').innerHTML = "&nbsp;";
+    document.getElementById('gameover').innerHTML = "&nbsp;";
 
-if(board.game_over){
+    if (board.game_over) {
 
-    function loop() {
-        board.drop();
-        redraw()
+        function loop() {
+            var do_redraw = board.drop();
+            redraw(do_redraw)
+
+        }
+
+        game_loop = setInterval(loop, 600);
+
 
     }
-
-    game_loop = setInterval(loop, 600);
-
-
-}
     board.reset()
 
     board.new_piece()
     board.game_over = false
-    board.score=0
+    board.score = 0
 
-    redraw();
+    redraw(true);
 
     // This is necessray otherwise space will trigger retry again
     document.getElementById('retry').blur();
-
 
 
 }
@@ -169,7 +187,8 @@ function main() {
     board = new Board()
 
     setupShaders()
-    redraw()
+    draw_background()
+    redraw(true)
 
     // for each time tick, update board,
     // keep camera stuff
@@ -185,12 +204,12 @@ function main() {
 
 
     function loop() {
-        board.drop();
-        redraw()
+        var do_redraw = board.drop();
+        redraw(do_redraw)
 
     }
 
-    //game_loop = setInterval(loop, 600);
+    game_loop = setInterval(loop, 600);
 
 
 }

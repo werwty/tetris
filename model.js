@@ -45,7 +45,18 @@ class Board {
         this.score = 0
 
     }
+    get_active_piece_coordinates(){
+        var coordinates = []
+        this.active_piece.shape.forEach((row, y) => {
+            row.forEach((value, x) => {
 
+                if (value != 0) {
+                    coordinates.push([this.active_x + x, this.active_y + y])
+                }
+            });
+        });
+        return coordinates
+    }
     new_piece() {
         var lines_cleared = this.clear_lines()
         this.score = this.score+lines_cleared;
@@ -143,6 +154,7 @@ class Board {
     }
 
     drop() {
+        var do_redraw=false
         this.clear_piece();
 
         if (this.valid_move(this.active_x, this.active_y + 1)) {
@@ -152,7 +164,9 @@ class Board {
             this.load_piece()
 
             this.new_piece()
+            do_redraw=true
         }
+        return do_redraw
     }
 
     valid_move(temp_x, temp_y, piece = this.active_piece) {

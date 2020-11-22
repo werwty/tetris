@@ -16,16 +16,20 @@ var inputEllipsoids = []; // the ellipsoid data as loaded from input files
 var numberCublets = 0; // how many ellipsoids in the input scene
 var vertexBuffers = []; // this contains vertex coordinate lists by set, in triples
 var normalBuffers = []; // this contains normal component lists by set, in triples
-var triSetSizes = []; // this contains the size of each triangle set
 var triangleBuffers = []; // lists of indices into vertexBuffers by set, in triples
 var viewDelta = 0; // how much to displace view with each key press
-
 
 
 var background_inputEllipsoids = []; // the ellipsoid data as loaded from input files
 var background_vertexBuffers = []; // this contains vertex coordinate lists by set, in triples
 var background_normalBuffers = []; // this contains normal component lists by set, in triples
 var background_triangleBuffers = []; // lists of indices into vertexBuffers by set, in triples
+
+
+var active_inputEllipsoids = []; // the ellipsoid data as loaded from input files
+var active_vertexBuffers = []; // this contains vertex coordinate lists by set, in triples
+var active_normalBuffers = []; // this contains normal component lists by set, in triples
+var active_triangleBuffers = []; // lists of indices into vertexBuffers by set, in triples
 
 
 /* shader parameter locations */
@@ -46,111 +50,117 @@ var Up = vec3.clone(defaultUp); // view up vector in world space
 // ASSIGNMENT HELPER FUNCTIONS
 
 const verticies = [
-            // Front face
-            0, 0, 0.08,
-            0.08, 0, 0.08,
-            0.08, 0.08, 0.08,
-            0, 0.08, 0.08,
+    // Front face
+    0, 0, 0.08,
+    0.08, 0, 0.08,
+    0.08, 0.08, 0.08,
+    0, 0.08, 0.08,
 
-            // Back face
-            0, 0, 0,
-            0, 0.08, 0,
-            0.08, 0.08, 0,
-            0.08, 0, 0,
+    // Back face
+    0, 0, 0,
+    0, 0.08, 0,
+    0.08, 0.08, 0,
+    0.08, 0, 0,
 
-            // Top face
-            0, 0.08, 0,
-            0, 0.08, 0.08,
-            0.08, 0.08, 0.08,
-            0.08, 0.08, 0,
+    // Top face
+    0, 0.08, 0,
+    0, 0.08, 0.08,
+    0.08, 0.08, 0.08,
+    0.08, 0.08, 0,
 
-            // Bottom face
-            0, 0, 0,
-            0.08, 0, 0,
-            0.08, 0, 0.08,
-            0, 0, 0.08,
+    // Bottom face
+    0, 0, 0,
+    0.08, 0, 0,
+    0.08, 0, 0.08,
+    0, 0, 0.08,
 
-            // Right face
-            0.08, 0, 0,
-            0.08, 0.08, 0,
-            0.08, 0.08, 0.08,
-            0.08, 0, 0.08,
+    // Right face
+    0.08, 0, 0,
+    0.08, 0.08, 0,
+    0.08, 0.08, 0.08,
+    0.08, 0, 0.08,
 
-            // Left face
-            0, 0, 0,
-            0, 0, 0.08,
-            0, 0.08, 0.08,
-            0, 0.08, 0,
-        ];
+    // Left face
+    0, 0, 0,
+    0, 0, 0.08,
+    0, 0.08, 0.08,
+    0, 0.08, 0,
+];
+const normals = [
+    // Front
+    0.0, 0.0, 1.0,
+    0.0, 0.0, 1.0,
+    0.0, 0.0, 1.0,
+    0.0, 0.0, 1.0,
+
+    // Back
+    0.0, 0.0, -1.0,
+    0.0, 0.0, -1.0,
+    0.0, 0.0, -1.0,
+    0.0, 0.0, -1.0,
+
+    // Top
+    0.0, 1.0, 0.0,
+    0.0, 1.0, 0.0,
+    0.0, 1.0, 0.0,
+    0.0, 1.0, 0.0,
+
+    // Bottom
+    0.0, -1.0, 0.0,
+    0.0, -1.0, 0.0,
+    0.0, -1.0, 0.0,
+    0.0, -1.0, 0.0,
+
+    // Right
+    1.0, 0.0, 0.0,
+    1.0, 0.0, 0.0,
+    1.0, 0.0, 0.0,
+    1.0, 0.0, 0.0,
+
+    // Left
+    -1.0, 0.0, 0.0,
+    -1.0, 0.0, 0.0,
+    -1.0, 0.0, 0.0,
+    -1.0, 0.0, 0.0
+];
+const indices = [
+    0, 1, 2, 0, 2, 3,    // front
+    4, 5, 6, 4, 6, 7,    // back
+    8, 9, 10, 8, 10, 11,   // top
+    12, 13, 14, 12, 14, 15,   // bottom
+    16, 17, 18, 16, 18, 19,   // right
+    20, 21, 22, 20, 22, 23,   // left
+];
+const default_cublet = ({vertices: verticies, normals: normals, triangles: indices});
+
+const background_verticies = [
+    0, 0, 0.09,
+    0.09, 0, 0.09,
+    0.09, 0.09, 0.09,
+    0, 0.09, 0.09,
+];
+const background_normals = [
+    0.0, 0.0, 1.0,
+    0.0, 0.0, 1.0,
+    0.0, 0.0, 1.0,
+    0.0, 0.0, 1.0,
+];
+const background_indices = [
+    0, 1, 2, 2, 3, 0,
+];
+const default_background = ({
+    vertices: background_verticies,
+    normals: background_normals,
+    triangles: background_indices
+});
 
 
-        const normals = [
-            // Front
-            0.0, 0.0, 1.0,
-            0.0, 0.0, 1.0,
-            0.0, 0.0, 1.0,
-            0.0, 0.0, 1.0,
-
-            // Back
-            0.0, 0.0, -1.0,
-            0.0, 0.0, -1.0,
-            0.0, 0.0, -1.0,
-            0.0, 0.0, -1.0,
-
-            // Top
-            0.0, 1.0, 0.0,
-            0.0, 1.0, 0.0,
-            0.0, 1.0, 0.0,
-            0.0, 1.0, 0.0,
-
-            // Bottom
-            0.0, -1.0, 0.0,
-            0.0, -1.0, 0.0,
-            0.0, -1.0, 0.0,
-            0.0, -1.0, 0.0,
-
-            // Right
-            1.0, 0.0, 0.0,
-            1.0, 0.0, 0.0,
-            1.0, 0.0, 0.0,
-            1.0, 0.0, 0.0,
-
-            // Left
-            -1.0, 0.0, 0.0,
-            -1.0, 0.0, 0.0,
-            -1.0, 0.0, 0.0,
-            -1.0, 0.0, 0.0
-        ];
-
-        const indices = [
-            0, 1, 2, 0, 2, 3,    // front
-            4, 5, 6, 4, 6, 7,    // back
-            8, 9, 10, 8, 10, 11,   // top
-            12, 13, 14, 12, 14, 15,   // bottom
-            16, 17, 18, 16, 18, 19,   // right
-            20, 21, 22, 20, 22, 23,   // left
-        ];
-
-
-        const default_cublet= ({vertices: verticies, normals: normals, triangles: indices});
 // set up the webGL environment
 function setupWebGL() {
 
     // Set up keys
     document.onkeydown = handleKeyDown; // call this when key pressed
-
-
-    //var imageCanvas = document.getElementById("myImageCanvas"); // create a 2d canvas
-    //imageContext = imageCanvas.getContext("2d");
-
-    //var bkgdImage = new Image();
-    //bkgdImage.crossOrigin = "Anonymous";
-    // bkgdImage.src = "https://ncsucgclass.github.io/prog3/sky.jpg";
-    // bkgdImage.onload = function () {
-    //     var iw = bkgdImage.width, ih = bkgdImage.height;
-    //     imageContext.drawImage(bkgdImage, 0, 0, iw, ih, 0, 0, cw, ch);
-    // }
-
+    viewDelta = .05//vec3.length(vec3.subtract(temp, maxCorner, minCorner)) / 100; // set global
 
     // Get the canvas and context
     var canvas = document.getElementById("myWebGLCanvas"); // create a js canvas
@@ -173,186 +183,151 @@ function setupWebGL() {
 
 } // end setupWebGL
 
-// read models in, load them into webgl buffers
-function loadModels(board) {
+function draw_background() {
 
-
-
-    // make an ellipsoid, with numLongSteps longitudes.
-    // start with a sphere of radius 1 at origin
-    // Returns verts, tris and normals.
-    function makeBackground() {
-        const verticies = [
-
-                0, 0, 0.08,
-            0.08, 0, 0.08,
-            0.08, 0.08, 0.08,
-            0, 0.08, 0.08,
-
-
-        ];
-
-
-        const normals = [
-            // Back
-            0.0, 0.0, 1.0,
-            0.0, 0.0, 1.0,
-            0.0, 0.0, 1.0,
-            0.0, 0.0, 1.0,
-
-
-
-        ];
-
-        const indices = [
-            0, 1, 2, 2, 3, 0,
-        ];
-
-
-        return ({vertices: verticies, normals: normals, triangles: indices});
-
-
-    } // end make ellipsoid
-
-
-    var num_background =0;
-    for (var y=0; y<20; y++){
-        for (var x =0; x<10; x++){
+    var num_background = 0;
+    for (var y = 0; y < 20; y++) {
+        for (var x = 0; x < 10; x++) {
 
             cublet = {
-                    translation: vec3.fromValues((5 - x) / 10, (10 - y) / 10, 0),
-                    ambient: [.1,.1,.1],
-                    diffuse: [0, 0, 0],
-                    specular: [0, 0, 0],
-                    n: 1,
-                    xAxis: vec3.fromValues(1, 0, 0),
-                    yAxis: vec3.fromValues(0, 1, 0),
-                    center: vec3.fromValues(0, 0, 0),
-                    on: false,
-                    alpha: 0.2
-
-                }
-                background_inputEllipsoids[num_background] = cublet
-
-
-                // make the ellipsoid model
-                cubletModel = makeBackground();
-
-                // send the ellipsoid vertex coords and normals to webGL
-                background_vertexBuffers.push(gl.createBuffer()); // init empty webgl ellipsoid vertex coord buffer
-                gl.bindBuffer(gl.ARRAY_BUFFER, background_vertexBuffers[background_vertexBuffers.length - 1]); // activate that buffer
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cubletModel.vertices), gl.STATIC_DRAW); // data in
-                background_normalBuffers.push(gl.createBuffer()); // init empty webgl ellipsoid vertex normal buffer
-                gl.bindBuffer(gl.ARRAY_BUFFER, background_normalBuffers[background_normalBuffers.length - 1]); // activate that buffer
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cubletModel.normals), gl.STATIC_DRAW); // data in
-
-                //triSetSizes.push(cubletModel.triangles.length);
-
-                // send the triangle indices to webGL
-                background_triangleBuffers.push(gl.createBuffer()); // init empty triangle index buffer
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, background_triangleBuffers[background_triangleBuffers.length - 1]); // activate that buffer
-                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubletModel.triangles), gl.STATIC_DRAW); // data in
-
-                num_background++;
+                translation: vec3.fromValues((5 - x) / 10, (10 - y) / 10, 0),
+                ambient: [.1, .1, .1],
+                diffuse: [0, 0, 0],
+                specular: [0, 0, 0],
+                n: 1,
+                xAxis: vec3.fromValues(1, 0, 0),
+                yAxis: vec3.fromValues(0, 1, 0),
+                center: vec3.fromValues(0, 0, 0),
+                on: false,
+                alpha: 0.2
 
             }
+            background_inputEllipsoids[num_background] = cublet
+
+
+            // make the ellipsoid model
+            cubletModel = default_background;
+
+            // send the ellipsoid vertex coords and normals to webGL
+            background_vertexBuffers.push(gl.createBuffer()); // init empty webgl ellipsoid vertex coord buffer
+            gl.bindBuffer(gl.ARRAY_BUFFER, background_vertexBuffers[background_vertexBuffers.length - 1]); // activate that buffer
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cubletModel.vertices), gl.STATIC_DRAW); // data in
+            background_normalBuffers.push(gl.createBuffer()); // init empty webgl ellipsoid vertex normal buffer
+            gl.bindBuffer(gl.ARRAY_BUFFER, background_normalBuffers[background_normalBuffers.length - 1]); // activate that buffer
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cubletModel.normals), gl.STATIC_DRAW); // data in
+
+
+            // send the triangle indices to webGL
+            background_triangleBuffers.push(gl.createBuffer()); // init empty triangle index buffer
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, background_triangleBuffers[background_triangleBuffers.length - 1]); // activate that buffer
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubletModel.triangles), gl.STATIC_DRAW); // data in
+
+            num_background++;
 
         }
 
+    }
+}
+
+function loadModels(board, active_pieces, redraw_all = true) {
 
 
+    if (redraw_all) {
+        inputEllipsoids = []; // the ellipsoid data as loaded from input files
+
+        vertexBuffers = []; // this contains vertex coordinate lists by set, in triples
+        normalBuffers = []; // this contains normal component lists by set, in triples
+        triSetSizes = []; // this contains the size of each triangle set
+        triangleBuffers = [];
+
+        active_inputEllipsoids = []; // the ellipsoid data as loaded from input files
+        active_vertexBuffers = []; // this contains vertex coordinate lists by set, in triples
+        active_normalBuffers = []; // this contains normal component lists by set, in triples
+        active_triangleBuffers = []; // lists of indices into vertexBuffers by set, in triples
 
 
+        console.log("redrawing entire board")
+        // init ellipsoid highlighting, translation and rotation; update bbox
+        var cublet; // current ellipsoid
+        var cubletModel; // current cublet triangular model
 
-    // init ellipsoid highlighting, translation and rotation; update bbox
-    var cublet; // current ellipsoid
-    var cubletModel; // current cublet triangular model
+
+        numberCublets = 0;
+        number_active = 0;
+
+        board.forEach((row, y) => {
+            row.forEach((value, x) => {
+                if (value != 0) {
+
+                    cublet = {
+                        translation: vec3.fromValues((5 - x) / 10, (10 - y) / 10, 0),
+                        ambient: value,
+                        diffuse: [.4, .4, .4],
+                        specular: [0, 0, 0],
+                        n: 1,
+                        xAxis: vec3.fromValues(1, 0, 0),
+                        yAxis: vec3.fromValues(0, 1, 0),
+                        center: vec3.fromValues(0, 0, 0),
+                        on: false,
+                        alpha: 1
+
+                    }
+
+                    cubletModel = default_cublet;
+
+                    var active_pieces_json = JSON.stringify(active_pieces);
+                    var curr_coor_json = JSON.stringify([x, y])
+                    if (active_pieces_json.indexOf(curr_coor_json) != -1) {
+                        active_inputEllipsoids[number_active] = cublet
+                        number_active++;
 
 
-    numberCublets = 0;
-    board.forEach((row, y) => {
-        row.forEach((value, x) => {
-            if (value != 0) {
-                cublet = {
-                    translation: vec3.fromValues((5 - x) / 10, (10 - y) / 10, 0),
-                    ambient: value,
-                    diffuse: [.4, .4, .4],
-                    specular: [0,0,0],
-                    n: 1,
-                    xAxis: vec3.fromValues(1, 0, 0),
-                    yAxis: vec3.fromValues(0, 1, 0),
-                    center: vec3.fromValues(0, 0, 0),
-                    on: false,
-                    alpha: 1
+                        // send the ellipsoid vertex coords and normals to webGL
+                        active_vertexBuffers.push(gl.createBuffer()); // init empty webgl ellipsoid vertex coord buffer
+                        gl.bindBuffer(gl.ARRAY_BUFFER, active_vertexBuffers[active_vertexBuffers.length - 1]); // activate that buffer
+                        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cubletModel.vertices), gl.STATIC_DRAW); // data in
+                        active_normalBuffers.push(gl.createBuffer()); // init empty webgl ellipsoid vertex normal buffer
+                        gl.bindBuffer(gl.ARRAY_BUFFER, active_normalBuffers[active_normalBuffers.length - 1]); // activate that buffer
+                        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cubletModel.normals), gl.STATIC_DRAW); // data in
+
+                        // send the triangle indices to webGL
+                        active_triangleBuffers.push(gl.createBuffer()); // init empty triangle index buffer
+                        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, active_triangleBuffers[active_triangleBuffers.length - 1]); // activate that buffer
+                        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubletModel.triangles), gl.STATIC_DRAW); // data in
+
+
+                    } else {
+                        inputEllipsoids[numberCublets] = cublet
+                        numberCublets++;
+
+
+                        // send the ellipsoid vertex coords and normals to webGL
+                        vertexBuffers.push(gl.createBuffer()); // init empty webgl ellipsoid vertex coord buffer
+                        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[vertexBuffers.length - 1]); // activate that buffer
+                        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cubletModel.vertices), gl.STATIC_DRAW); // data in
+                        normalBuffers.push(gl.createBuffer()); // init empty webgl ellipsoid vertex normal buffer
+                        gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffers[normalBuffers.length - 1]); // activate that buffer
+                        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cubletModel.normals), gl.STATIC_DRAW); // data in
+
+
+                        // send the triangle indices to webGL
+                        triangleBuffers.push(gl.createBuffer()); // init empty triangle index buffer
+                        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleBuffers[triangleBuffers.length - 1]); // activate that buffer
+                        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubletModel.triangles), gl.STATIC_DRAW); // data in
+                    }
 
                 }
-                inputEllipsoids[numberCublets] = cublet
 
-
-                // make the ellipsoid model
-                cubletModel = default_cublet;
-
-                // send the ellipsoid vertex coords and normals to webGL
-                vertexBuffers.push(gl.createBuffer()); // init empty webgl ellipsoid vertex coord buffer
-                gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[vertexBuffers.length - 1]); // activate that buffer
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cubletModel.vertices), gl.STATIC_DRAW); // data in
-                normalBuffers.push(gl.createBuffer()); // init empty webgl ellipsoid vertex normal buffer
-                gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffers[normalBuffers.length - 1]); // activate that buffer
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cubletModel.normals), gl.STATIC_DRAW); // data in
-
-                triSetSizes.push(cubletModel.triangles.length);
-
-                // send the triangle indices to webGL
-                triangleBuffers.push(gl.createBuffer()); // init empty triangle index buffer
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleBuffers[triangleBuffers.length - 1]); // activate that buffer
-                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubletModel.triangles), gl.STATIC_DRAW); // data in
-
-                numberCublets++;
-
-            }
-            //
-            // else {
-            //     cublet = {
-            //         translation: vec3.fromValues((5 - x) / 10, (10 - y) / 10, 0),
-            //         ambient: [.1,.1,.1],
-            //         diffuse: [.05,.05,.05],
-            //         specular: [0, 0, 0],
-            //         n: 0,
-            //         xAxis: vec3.fromValues(1, 0, 0),
-            //         yAxis: vec3.fromValues(0, 1, 0),
-            //         center: vec3.fromValues(0, 0, 0),
-            //         on: false,
-            //         alpha: 0.84
-            //
-            //     }
-            //     inputEllipsoids[numberCublets] = cublet
-            //
-            //
-            //     // make the ellipsoid model
-            //     cubletModel = default_cublet;
-            //
-            //     // send the ellipsoid vertex coords and normals to webGL
-            //     vertexBuffers.push(gl.createBuffer()); // init empty webgl ellipsoid vertex coord buffer
-            //     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[vertexBuffers.length - 1]); // activate that buffer
-            //     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cubletModel.vertices), gl.STATIC_DRAW); // data in
-            //     normalBuffers.push(gl.createBuffer()); // init empty webgl ellipsoid vertex normal buffer
-            //     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffers[normalBuffers.length - 1]); // activate that buffer
-            //     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cubletModel.normals), gl.STATIC_DRAW); // data in
-            //
-            //     triSetSizes.push(cubletModel.triangles.length);
-            //
-            //     // send the triangle indices to webGL
-            //     triangleBuffers.push(gl.createBuffer()); // init empty triangle index buffer
-            //     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleBuffers[triangleBuffers.length - 1]); // activate that buffer
-            //     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubletModel.triangles), gl.STATIC_DRAW); // data in
-            //
-            //     numberCublets++;
-            //
-            // }
+            });
         });
-    });
+    } else {
+        for (var i = 0; i < 4; i++) {
+            var active_piece = active_pieces[i]
+            active_inputEllipsoids[i].translation = vec3.fromValues((5 - active_piece[0]) / 10, (10 - active_piece[1]) / 10, 0)
+        }
 
-    viewDelta = .05//vec3.length(vec3.subtract(temp, maxCorner, minCorner)) / 100; // set global
+    }
+
 
 } // end load models
 
@@ -501,7 +476,6 @@ function setupShaders() {
 
 // render the loaded model
 function renderModels() {
-
     // construct the model transform matrix, based on model state
     function makeModelTransform(currModel) {
         var zAxis = vec3.create(), sumRotation = mat4.create(), temp = mat4.create(), negCtr = vec3.create();
@@ -577,7 +551,6 @@ function renderModels() {
     } // end for each ellipsoid
 
 
-
     for (var whichEllipsoid = 0; whichEllipsoid < numberCublets; whichEllipsoid++) {
         var ellipsoid = inputEllipsoids[whichEllipsoid];
 
@@ -600,7 +573,36 @@ function renderModels() {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleBuffers[numTriangleSets + whichEllipsoid]); // activate tri buffer
 
         // draw a transformed instance of the ellipsoid
-        gl.drawElements(gl.TRIANGLES, triSetSizes[numTriangleSets + whichEllipsoid], gl.UNSIGNED_SHORT, 0); // render
+        gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0); // render
+        gl.uniform1f(shaderProgram.alphaUniform, ellipsoid.alpha);
+
+
+    } // end for each ellipsoid
+
+
+    for (var whichEllipsoid = 0; whichEllipsoid < 4; whichEllipsoid++) {
+        var ellipsoid = active_inputEllipsoids[whichEllipsoid];
+
+        // define model transform, premult with pvmMatrix, feed to vertex shader
+        makeModelTransform(ellipsoid);
+        pvmMatrix = mat4.multiply(pvmMatrix, pvMatrix, mMatrix); // premultiply with pv matrix
+        gl.uniformMatrix4fv(mMatrixULoc, false, mMatrix); // pass in model matrix
+        gl.uniformMatrix4fv(pvmMatrixULoc, false, pvmMatrix); // pass in project view model matrix
+
+        // reflectivity: feed to the fragment shader
+        gl.uniform3fv(ambientULoc, ellipsoid.ambient); // pass in the ambient reflectivity
+        gl.uniform3fv(diffuseULoc, ellipsoid.diffuse); // pass in the diffuse reflectivity
+        gl.uniform3fv(specularULoc, ellipsoid.specular); // pass in the specular reflectivity
+        gl.uniform1f(shininessULoc, ellipsoid.n); // pass in the specular exponent
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, active_vertexBuffers[numTriangleSets + whichEllipsoid]); // activate vertex buffer
+        gl.vertexAttribPointer(vPosAttribLoc, 3, gl.FLOAT, false, 0, 0); // feed vertex buffer to shader
+        gl.bindBuffer(gl.ARRAY_BUFFER, active_normalBuffers[numTriangleSets + whichEllipsoid]); // activate normal buffer
+        gl.vertexAttribPointer(vNormAttribLoc, 3, gl.FLOAT, false, 0, 0); // feed normal buffer to shader
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, active_triangleBuffers[numTriangleSets + whichEllipsoid]); // activate tri buffer
+
+        // draw a transformed instance of the ellipsoid
+        gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0); // render
         gl.uniform1f(shaderProgram.alphaUniform, ellipsoid.alpha);
 
 
