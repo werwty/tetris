@@ -59,19 +59,19 @@ function handleKeyDown(event) {
             var do_redraw = board.drop()
             redraw(do_redraw)
             break;
-            case "KeyH": // hold the piece
-                board.hold()
-        draw_next_piece('hold', board.hold_piece.name)
+        case "KeyH": // hold the piece
+            board.hold()
+            draw_next_piece('hold', board.hold_piece.name)
 
             redraw(true)
             break;
 
-                        case "KeyZ": // select next ellipsoid
+        case "KeyZ": // select next ellipsoid
             board.rotate(false)
             redraw()
             break;
 
-                        case "KeyX": // select next ellipsoid
+        case "KeyX": // select next ellipsoid
             board.rotate()
             redraw()
             break;
@@ -131,6 +131,10 @@ function handleKeyDown(event) {
 } // end handleKeyDown
 
 function redraw(redraw_all = false) {
+    if(board.score > parseInt(document.getElementById('score').innerHTML)) {
+        playNote(440, .5)
+
+    }
     document.getElementById('score').innerHTML = board.score;
 
     if (board.game_over) {
@@ -138,12 +142,52 @@ function redraw(redraw_all = false) {
 
         clearInterval(game_loop);
 
+
+        setTimeout(function () {
+
+            playNote(494, 1); // b'
+
+            setTimeout(function () {
+
+                playNote(698.4565, 1); // a'
+                setTimeout(function () {
+
+                    playNote(698.4565, 1); // b'
+
+                    setTimeout(function () {
+
+                        playNote(698.4565, 1); // b'
+                        setTimeout(function () {
+
+                            playNote(659.2551, 1); // b'
+
+                            setTimeout(function () {
+
+                                playNote(587.3295, 1); // c''
+                                setTimeout(function () {
+
+                                    playNote(523.2511, 1); // b'
+
+
+                                }, 100);
+
+                            }, 100);
+                        }, 100);
+
+                    }, 150);
+                }, 150);
+
+            }, 150);
+        }, 100);
+
+
+
     } else {
         loadModels(board.board, board.get_active_piece_coordinates(), redraw_all);
         renderModels()
     }
 
-    if(redraw_all) {
+    if (redraw_all) {
         draw_next_piece('next', board.bag[6])
         draw_next_piece('next2', board.bag[5])
         draw_next_piece('next3', board.bag[4])
@@ -152,10 +196,9 @@ function redraw(redraw_all = false) {
     }
 
 
-
 }
 
-function draw_next_piece(canvas_id, tetronmino_name){
+function draw_next_piece(canvas_id, tetronmino_name) {
     var canvasNext = document.getElementById(canvas_id);
     var ctxNext = canvasNext.getContext('2d');
     ctxNext.canvas.width = 5 * 25;
@@ -166,23 +209,24 @@ function draw_next_piece(canvas_id, tetronmino_name){
 
     var next_piece = get_tetronmino(tetronmino_name)
     next_piece.shape.forEach((row, y) => {
-       row.forEach((value, x) => {
-           ctxNext.fillRect( x,  y, 1, 1);
+        row.forEach((value, x) => {
+            ctxNext.fillRect(x, y, 1, 1);
 
-       });
-     });
+        });
+    });
 
-    ctxNext.fillStyle = 'rgb('+ next_piece.color[0]*255+ ',' + next_piece.color[1]*255 + ',' + next_piece.color[2]*255 + ')';
+    ctxNext.fillStyle = 'rgb(' + next_piece.color[0] * 255 + ',' + next_piece.color[1] * 255 + ',' + next_piece.color[2] * 255 + ')';
 
     next_piece.shape.forEach((row, y) => {
-       row.forEach((value, x) => {
-         if (value > 0) {
-           ctxNext.fillRect( x,  y, 1, 1);
-         }
-       });
-     });
+        row.forEach((value, x) => {
+            if (value > 0) {
+                ctxNext.fillRect(x, y, 1, 1);
+            }
+        });
+    });
 
 }
+
 function reset() {
     console.log("resetting board")
     document.getElementById('gameover').innerHTML = "&nbsp;";
@@ -243,7 +287,27 @@ function main() {
 
     }
 
-    game_loop = setInterval(loop, 600);
+    game_loop = setInterval(loop, 1500);
 
 
 }
+
+
+// Tetris notes
+// create web audio api context
+var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+
+function playNote(frequency, duration) {
+    // create Oscillator node
+    var oscillator = audioCtx.createOscillator();
+    oscillator.type = 'square';
+    oscillator.frequency.value = frequency; // value in hertz
+    oscillator.connect(audioCtx.destination);
+    oscillator.start();
+    setTimeout(
+        function () {
+            oscillator.stop();
+        }, 100 * duration);
+}
+
