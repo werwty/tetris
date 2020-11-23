@@ -27,11 +27,41 @@
     </div>
 
     <div class="flex-child">
-        <div>      Next Piece: </div><div><canvas id="next" class="next"></canvas></div>
+        <div> Next Piece:</div>
+        <div>
+            <canvas id="next" class="next"></canvas>
+            <canvas id="next2" class="next2"></canvas>
+            <canvas id="next3" class="next3"></canvas>
+            <canvas id="next4" class="next4"></canvas>
+            <canvas id="next5" class="next5"></canvas>
+        </div>
+        <div> Hold</div>
+        <div>
+            <canvas id="hold" class="next"></canvas>
+
+        </div>
         <div id="gameover">&nbsp;</div>
 
         <div>Score: <span id="score"></span></div>
         <button id="retry" onclick="reset()">Retry</button>
+        <div>
+            Controls
+        </div>
+        <div class="controls">
+            a/d — translate view left and right along view X<br>
+            w/s — translate view forward and backward along view Z<br>
+            q/e — translate view up and down along view Y<br>
+            A/D — rotate view left and right around view Y (yaw)<br>
+            W/S — rotate view forward and backward around view X (pitch)<br>
+            Q/E — rotate view forward and backward around view Z (roll)<br>
+            Left/Right to move piece <br>
+            Up to rotate clockwise <br>
+            z/x to rotate counterclockwise/clockwise
+            Down to soft drop<br>
+            Space to hard drop<br>
+            H to put piece in/out of hold.
+
+        </div>
     </div>
 
 </div>

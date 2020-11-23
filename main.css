@@ -9,7 +9,7 @@
 body{
     background-color: black;
     color: white;
-  font-size: 50px;
+  font-size: 30px;
 
 }
 
@@ -44,11 +44,11 @@ body{
     color: black;
     background-color: white;
 
-  padding: 24px 48px;
+  padding: 12px 24px;
   text-align: center;
   display: inline-block;
-  font-size: 50px;
-margin-top: 20px;
+  font-size: 30px;
+margin-top: 10px;
 
 
 
@@ -64,6 +64,7 @@ margin-top: 20px;
 }
 
 
-#next{
+.controls{
+       font-size: 15px;
 
 }

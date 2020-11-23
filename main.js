@@ -59,7 +59,22 @@ function handleKeyDown(event) {
             var do_redraw = board.drop()
             redraw(do_redraw)
             break;
+            case "KeyH": // hold the piece
+                board.hold()
+        draw_next_piece('hold', board.hold_piece.name)
 
+            redraw(true)
+            break;
+
+                        case "KeyZ": // select next ellipsoid
+            board.rotate(false)
+            redraw()
+            break;
+
+                        case "KeyX": // select next ellipsoid
+            board.rotate()
+            redraw()
+            break;
         // view change
         case "KeyA": // translate view left, rotate left with shift
             Center = vec3.add(Center, Center, vec3.scale(temp, viewRight, viewDelta));
@@ -128,26 +143,38 @@ function redraw(redraw_all = false) {
         renderModels()
     }
 
-    const canvasNext = document.getElementById('next');
-    const ctxNext = canvasNext.getContext('2d');
-// Size canvas for four blocks.
-    ctxNext.canvas.width = 5 * 40;
-    ctxNext.canvas.height = 5 * 40;
-    ctxNext.scale(40, 40);
+    if(redraw_all) {
+        draw_next_piece('next', board.bag[6])
+        draw_next_piece('next2', board.bag[5])
+        draw_next_piece('next3', board.bag[4])
+        draw_next_piece('next4', board.bag[3])
+        draw_next_piece('next5', board.bag[2])
+    }
 
+
+
+}
+
+function draw_next_piece(canvas_id, tetronmino_name){
+    var canvasNext = document.getElementById(canvas_id);
+    var ctxNext = canvasNext.getContext('2d');
+    ctxNext.canvas.width = 5 * 25;
+    ctxNext.canvas.height = 5 * 25;
+    ctxNext.scale(25, 25);
     ctxNext.fillStyle = 'black';
     ctxNext.fillRect(1, 1, 1, 1);
 
-    board.next_piece.shape.forEach((row, y) => {
+    var next_piece = get_tetronmino(tetronmino_name)
+    next_piece.shape.forEach((row, y) => {
        row.forEach((value, x) => {
            ctxNext.fillRect( x,  y, 1, 1);
 
        });
      });
 
-        ctxNext.fillStyle = 'white';
+    ctxNext.fillStyle = 'rgb('+ next_piece.color[0]*255+ ',' + next_piece.color[1]*255 + ',' + next_piece.color[2]*255 + ')';
 
-    board.next_piece.shape.forEach((row, y) => {
+    next_piece.shape.forEach((row, y) => {
        row.forEach((value, x) => {
          if (value > 0) {
            ctxNext.fillRect( x,  y, 1, 1);
@@ -155,9 +182,7 @@ function redraw(redraw_all = false) {
        });
      });
 
-
 }
-
 function reset() {
     console.log("resetting board")
     document.getElementById('gameover').innerHTML = "&nbsp;";

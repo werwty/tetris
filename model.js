@@ -36,6 +36,62 @@ var orientations = ['0', 'R', '2', 'L']
 
 var default_bag = ['I', 'T', 'L', 'J', 'S', 'Z', 'O']
 
+var tetrominos = [
+        {
+            'name': 'I',
+            'shape': [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 1, 1, 1, 1], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
+            'color': [49/255, 179/255, 211/255],
+            'orientation': orientations[0]
+
+        },
+        {
+            'name': 'T',
+            'shape': [[0, 1, 0], [1, 1, 1], [0, 0, 0]],
+            'color': [140 / 255, 0 / 255, 184 / 255],
+            'orientation': orientations[0]
+
+        },
+        {
+            'name': 'L',
+            'shape': [[0, 0, 1], [1, 1, 1], [0, 0, 0]],
+            'color': [237/255, 151 / 255, 31 / 255],
+            'orientation': orientations[0]
+
+        },
+        {
+            'name': 'J',
+            'shape': [[1, 0, 0], [1, 1, 1], [0, 0, 0]],
+            'color': [47 / 255, 49 / 255, 209 / 255],
+            'orientation': orientations[0]
+        },
+        {
+            'name': 'Z',
+            'shape': [[1, 1, 0], [0, 1, 1], [0, 0, 0]],
+            'color': [206/255,  26/255, 26/255],
+            'orientation': orientations[0]
+        },
+        {
+            'name': 'S',
+            'shape': [[0, 1, 1], [1, 1, 0], [0, 0, 0]],
+            'color': [17/ 255, 184/255, 0 / 255],
+            'orientation': orientations[0]
+        },
+        {
+            'name': 'O',
+            'shape': [[0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]],
+            'color': [1, 209/255, 0],
+            'orientation': orientations[0]
+        }]
+
+function get_tetronmino(name) {
+        for (var i = 0; i < tetrominos.length; i++) {
+            var tetromino = tetrominos[i];
+            if (tetromino.name == name) {
+                return tetromino
+            }
+        }
+    }
+
 function get_permutated_bag(){
     var bag =JSON.parse(JSON.stringify(default_bag))
     for (var i = bag.length - 1; i > 0; i--) {
@@ -54,11 +110,10 @@ class Board {
         this.reset()
         this.bag = get_permutated_bag()
         this.next_bag = get_permutated_bag()
-
-        this.next_piece = new Tetromino(this.bag.pop())
         this.new_piece()
         this.game_over = false
         this.score = 0
+        this.hold_piece = null
 
     }
     get_active_piece_coordinates(){
@@ -73,12 +128,15 @@ class Board {
         return coordinates
     }
     new_piece() {
-        if(this.bag.length ==0){
-            this.bag = this.next_bag
+
+        this.active_piece = new Tetromino(this.bag.pop())
+        this.bag.unshift(this.next_bag.pop())
+
+
+
+        if(this.next_bag.length ==0){
             this.next_bag= get_permutated_bag()
         }
-        this.active_piece = this.next_piece
-        this.next_piece = new Tetromino(this.bag.pop())
 
         var lines_cleared = this.clear_lines()
         this.score = this.score+lines_cleared;
@@ -96,6 +154,23 @@ class Board {
         }
     }
 
+    hold(){
+        this.clear_piece();
+
+        if(this.hold_piece == null){
+            this.hold_piece = this.active_piece;
+            this.new_piece()
+        }
+        else{
+            var temp = this.hold_piece;
+            this.hold_piece= this.active_piece;
+            this.active_piece= temp
+            this.active_x=3
+            this.active_y=0
+        }
+
+        this.load_piece()
+    }
     clear_lines() {
         var number_lines_cleared = 0;
         for (var y = 0; y < this.board_height; y++) {
@@ -230,7 +305,7 @@ class Board {
         this.load_piece()
     }
 
-    rotate() {
+    rotate(clockwise=true) {
         function get_rotated_offsets(rotated_orientation, active_orientation, offset, name) {
             var offset_rotated;
             var offset_active;
@@ -254,7 +329,13 @@ class Board {
 
         // gotta hard copy
         var rotated_piece = Object.assign(Object.create(Object.getPrototypeOf(this.active_piece)), this.active_piece)
-        rotated_piece.rotate()
+        if (clockwise) {
+            rotated_piece.rotate()
+        }
+        else{
+            debugger
+            rotated_piece.rotate_counter()
+        }
 
         var is_valid_rotation = false;
         // guideline SRS: https://tetris.wiki/Super_Rotation_System
@@ -270,7 +351,12 @@ class Board {
         }
 
         if (is_valid_rotation) {
-            this.active_piece.rotate();
+                    if (clockwise) {
+
+                        this.active_piece.rotate();
+                    }else{
+                        this.active_piece.rotate_counter()
+                    }
         }
         this.load_piece()
     }
@@ -282,7 +368,7 @@ class Tetromino {
         if (name == null) {
             tetromino = this.get_random()
         } else {
-            tetromino = this.get_tetronmino(name)
+            tetromino = get_tetronmino(name)
         }
         this.shape = tetromino.shape
         this.color = tetromino.color
@@ -292,86 +378,46 @@ class Tetromino {
     }
 
 
-    tetrominos = [
-        {
-            'name': 'I',
-            'shape': [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 1, 1, 1, 1], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
-            'color': [49/255, 179/255, 211/255],
-            'orientation': orientations[0]
-
-        },
-        {
-            'name': 'T',
-            'shape': [[0, 1, 0], [1, 1, 1], [0, 0, 0]],
-            'color': [140 / 255, 0 / 255, 184 / 255],
-            'orientation': orientations[0]
-
-        },
-        {
-            'name': 'L',
-            'shape': [[0, 0, 1], [1, 1, 1], [0, 0, 0]],
-            'color': [237/255, 151 / 255, 31 / 255],
-            'orientation': orientations[0]
-
-        },
-        {
-            'name': 'J',
-            'shape': [[1, 0, 0], [1, 1, 1], [0, 0, 0]],
-            'color': [47 / 255, 49 / 255, 209 / 255],
-            'orientation': orientations[0]
-        },
-        {
-            'name': 'Z',
-            'shape': [[1, 1, 0], [0, 1, 1], [0, 0, 0]],
-            'color': [206/255,  26/255, 26/255],
-            'orientation': orientations[0]
-        },
-        {
-            'name': 'S',
-            'shape': [[0, 1, 1], [1, 1, 0], [0, 0, 0]],
-            'color': [17/ 255, 184/255, 0 / 255],
-            'orientation': orientations[0]
-        },
-        {
-            'name': 'O',
-            'shape': [[0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]],
-            'color': [1, 209/255, 0],
-            'orientation': orientations[0]
-        }]
-
     get_random() {
-        return this.tetrominos[Math.floor(Math.random() * this.tetrominos.length)];
+        return tetrominos[Math.floor(Math.random() * tetrominos.length)];
     }
 
-    get_tetronmino(name) {
-        for (var i = 0; i < this.tetrominos.length; i++) {
-            var tetromino = this.tetrominos[i];
-            if (tetromino.name == name) {
-                return tetromino
-            }
-        }
-    }
+
 
     rotate() {
-
         if (this.name == 'O')
             return
-        let rotate_shape = JSON.parse(JSON.stringify(this.shape));
-        for (let y = 0; y < rotate_shape.length; ++y) {
-            for (let x = 0; x < y; ++x) {
-                [rotate_shape[x][y], rotate_shape[y][x]] = [rotate_shape[y][x], rotate_shape[x][y]];
+        var rotated_piece = JSON.parse(JSON.stringify(this.shape));
+        for (var y = 0; y < rotated_piece.length; ++y) {
+            for (var x = 0; x < y; ++x) {
+                [rotated_piece[x][y], rotated_piece[y][x]] = [rotated_piece[y][x], rotated_piece[x][y]];
             }
         }
 
-        rotate_shape.forEach(row => row.reverse());
-        this.shape = rotate_shape
-
-        // TODO do an index lookup and use that
+        rotated_piece.forEach(row => row.reverse());
+        this.shape = rotated_piece
         var orientation_index = orientations.indexOf(this.orientation)
         orientation_index = (orientation_index + 1) % 4
         this.orientation = orientations[orientation_index]
     }
 
+ rotate_counter() {
+        if (this.name == 'O')
+            return
+        var rotated_piece = JSON.parse(JSON.stringify(this.shape));
+                rotated_piece.forEach(row => row.reverse());
+
+        for (var y = 0; y < rotated_piece.length; ++y) {
+            for (var x = 0; x < y; ++x) {
+                [rotated_piece[x][y], rotated_piece[y][x]] = [rotated_piece[y][x], rotated_piece[x][y]];
+            }
+        }
+
+        this.shape = rotated_piece
+        var orientation_index = orientations.indexOf(this.orientation)
+        orientation_index = (((orientation_index -1) % 4) + 4) % 4
+        this.orientation = orientations[orientation_index]
+    }
 
 }
 
