@@ -1,4 +1,4 @@
-A Tetris game.
+A modern tetris game.
 
 Controls:
     a/d — translate view left and right along view X<br>
@@ -12,17 +12,17 @@ Controls:
     z/x to rotate counterclockwise/clockwise
     Down to soft drop<br>
     Space to hard drop<br>
-    H to put piece in/out of hold.
+    C to put piece in/out of hold.
 
-Game details/potential extra credit:
 
-    This implementation uses the SRS rotation system (https://tetris.wiki/Super_Rotation_System) tucks and t-spins are therefore possible.
 
-    A 7-bag (https://tetris.fandom.com/wiki/Random_Generator) is also implemented- all seven pieces have to appear before the next set of 7 starts.
-    This prevents the player from getting a run of bad pieces.
+TODO:
+- hold should reset position
+- score system
+- change das and arr
+- piece generation should kick up 1 if default pos is occupied
+- hold should only work once per piece
+- garbage
+- 180 spins
+- slide
 
-    Score is currently done by number of lines cleared.
-
-    A hold functionality has been added. by pressing 'H' a player can move a piece in/out of hold.
-
-    Music plays when game is over, and when a line is cleared.

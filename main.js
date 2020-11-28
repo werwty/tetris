@@ -5,33 +5,6 @@ const debug = false
 // does stuff when keys are pressed
 function handleKeyDown(event) {
 
-    const dirEnum = {NEGATIVE: -1, POSITIVE: 1}; // enumerated rotation direction
-
-
-    function translateModel(offset) {
-        if (debug) {
-            if (handleKeyDown.modelOn != null)
-                vec3.add(handleKeyDown.modelOn.translation, handleKeyDown.modelOn.translation, offset);
-        }
-    } // end translate model
-
-    function rotateModel(axis, direction) {
-        if (debug) {
-            if (handleKeyDown.modelOn != null) {
-                var newRotation = mat4.create();
-
-                mat4.fromRotation(newRotation, direction * rotateTheta, axis); // get a rotation matrix around passed axis
-                vec3.transformMat4(handleKeyDown.modelOn.xAxis, handleKeyDown.modelOn.xAxis, newRotation); // rotate model x axis tip
-                vec3.transformMat4(handleKeyDown.modelOn.yAxis, handleKeyDown.modelOn.yAxis, newRotation); // rotate model y axis tip
-            } // end if there is a highlighted model
-        } // end rotate model
-    }
-
-    // set up needed view params
-    var lookAt = vec3.create(), viewRight = vec3.create(), temp = vec3.create(); // lookat, right & temp vectors
-    lookAt = vec3.normalize(lookAt, vec3.subtract(temp, Center, Eye)); // get lookat vector
-    viewRight = vec3.normalize(viewRight, vec3.cross(temp, lookAt, Up)); // get view right vector
-
     // highlight static variables
     handleKeyDown.whichOn = handleKeyDown.whichOn == undefined ? -1 : handleKeyDown.whichOn; // nothing selected initially
     handleKeyDown.modelOn = handleKeyDown.modelOn == undefined ? null : handleKeyDown.modelOn; // nothing selected initially
@@ -59,7 +32,7 @@ function handleKeyDown(event) {
             var do_redraw = board.drop()
             redraw(do_redraw)
             break;
-        case "KeyH": // hold the piece
+        case "KeyC": // hold the piece
             board.hold()
             draw_next_piece('hold', board.hold_piece.name)
 
@@ -75,116 +48,24 @@ function handleKeyDown(event) {
             board.rotate()
             redraw()
             break;
-        // view change
-        case "KeyA": // translate view left, rotate left with shift
-            Center = vec3.add(Center, Center, vec3.scale(temp, viewRight, viewDelta));
-            if (!event.getModifierState("Shift"))
-                Eye = vec3.add(Eye, Eye, vec3.scale(temp, viewRight, viewDelta));
-            break;
-        case "KeyD": // translate view right, rotate right with shift
-            Center = vec3.add(Center, Center, vec3.scale(temp, viewRight, -viewDelta));
-            if (!event.getModifierState("Shift"))
-                Eye = vec3.add(Eye, Eye, vec3.scale(temp, viewRight, -viewDelta));
-            break;
-        case "KeyS": // translate view backward, rotate up with shift
-            if (event.getModifierState("Shift")) {
-                Center = vec3.add(Center, Center, vec3.scale(temp, Up, viewDelta));
-                Up = vec3.cross(Up, viewRight, vec3.subtract(lookAt, Center, Eye)); /* global side effect */
-            } else {
-                Eye = vec3.add(Eye, Eye, vec3.scale(temp, lookAt, -viewDelta));
-                Center = vec3.add(Center, Center, vec3.scale(temp, lookAt, -viewDelta));
-            } // end if shift not pressed
-            break;
-        case "KeyW": // translate view forward, rotate down with shift
-            if (event.getModifierState("Shift")) {
-                Center = vec3.add(Center, Center, vec3.scale(temp, Up, -viewDelta));
-                Up = vec3.cross(Up, viewRight, vec3.subtract(lookAt, Center, Eye)); /* global side effect */
-            } else {
-                Eye = vec3.add(Eye, Eye, vec3.scale(temp, lookAt, viewDelta));
-                Center = vec3.add(Center, Center, vec3.scale(temp, lookAt, viewDelta));
-            } // end if shift not pressed
-            break;
-        case "KeyQ": // translate view up, rotate counterclockwise with shift
-            if (event.getModifierState("Shift"))
-                Up = vec3.normalize(Up, vec3.add(Up, Up, vec3.scale(temp, viewRight, -viewDelta)));
-            else {
-                Eye = vec3.add(Eye, Eye, vec3.scale(temp, Up, viewDelta));
-                Center = vec3.add(Center, Center, vec3.scale(temp, Up, viewDelta));
-            } // end if shift not pressed
-            break;
-        case "KeyE": // translate view down, rotate clockwise with shift
-            if (event.getModifierState("Shift"))
-                Up = vec3.normalize(Up, vec3.add(Up, Up, vec3.scale(temp, viewRight, viewDelta)));
-            else {
-                Eye = vec3.add(Eye, Eye, vec3.scale(temp, Up, -viewDelta));
-                Center = vec3.add(Center, Center, vec3.scale(temp, Up, -viewDelta));
-            } // end if shift not pressed
-            break;
-        case "Escape": // reset view to default
-            Eye = vec3.copy(Eye, defaultEye);
-            Center = vec3.copy(Center, defaultCenter);
-            Up = vec3.copy(Up, defaultUp);
-            break;
+
 
 
     } // end switch
 } // end handleKeyDown
 
 function redraw(redraw_all = false) {
-    if(board.score > parseInt(document.getElementById('score').innerHTML)) {
-        playNote(440, .5)
 
-    }
     document.getElementById('score').innerHTML = board.score;
 
     if (board.game_over) {
         document.getElementById('gameover').innerHTML = "Game Over! Press Retry to Continue";
-
         clearInterval(game_loop);
 
 
-        setTimeout(function () {
-
-            playNote(494, 1); // b'
-
-            setTimeout(function () {
-
-                playNote(698.4565, 1); // a'
-                setTimeout(function () {
-
-                    playNote(698.4565, 1); // b'
-
-                    setTimeout(function () {
-
-                        playNote(698.4565, 1); // b'
-                        setTimeout(function () {
-
-                            playNote(659.2551, 1); // b'
-
-                            setTimeout(function () {
-
-                                playNote(587.3295, 1); // c''
-                                setTimeout(function () {
-
-                                    playNote(523.2511, 1); // b'
-
-
-                                }, 100);
-
-                            }, 100);
-                        }, 100);
-
-                    }, 150);
-                }, 150);
-
-            }, 150);
-        }, 100);
-
-
-
     } else {
-        loadModels(board.board, board.get_active_piece_coordinates(), redraw_all);
-        renderModels()
+        //loadModels(board.board, board.get_active_piece_coordinates(), redraw_all);
+        board.draw()
     }
 
     if (redraw_all) {
@@ -227,6 +108,56 @@ function draw_next_piece(canvas_id, tetronmino_name) {
 
 }
 
+function draw_next_piece(canvas_id, tetronmino_name) {
+    var canvasNext = document.getElementById(canvas_id);
+    var ctxNext = canvasNext.getContext('2d');
+    ctxNext.canvas.width = 5 * 25;
+    ctxNext.canvas.height = 5 * 25;
+    ctxNext.scale(25, 25);
+    ctxNext.fillStyle = 'black';
+
+    clear_piece(canvas_id)
+    var next_piece = get_tetronmino(tetronmino_name)
+    ctxNext.fillStyle = 'rgb(' + next_piece.color[0] * 255 + ',' + next_piece.color[1] * 255 + ',' + next_piece.color[2] * 255 + ')';
+
+    if(tetronmino_name == "I"){
+        for (var i = 1; i < next_piece.shape.length; i++) {
+            for (var j = 1; j < next_piece.shape.length; j++) {
+                if (next_piece.shape[j][i] > 0) {
+                    ctxNext.fillRect(i-1, j-1, 1, 1);
+                }
+            }
+        }
+    }
+    else {
+        for (var i = 0; i < next_piece.shape.length; i++) {
+            for (var j = 0; j < next_piece.shape.length; j++) {
+                if (next_piece.shape[j][i] > 0) {
+                    ctxNext.fillRect(i, j, 1, 1);
+                }
+            }
+        }
+    }
+
+}
+
+function clear_piece(canvas_id) {
+    var canvasNext = document.getElementById(canvas_id);
+    var ctxNext = canvasNext.getContext('2d');
+    ctxNext.canvas.width = 5 * 25;
+    ctxNext.canvas.height = 5 * 25;
+    ctxNext.scale(25, 25);
+    ctxNext.fillStyle = 'black';
+
+    for(var i=0; i<5; i++){
+        for(var j=0; j<5; j++){
+                        ctxNext.fillRect(i, j, 1, 1);
+
+        }
+    }
+
+}
+
 function reset() {
     console.log("resetting board")
     document.getElementById('gameover').innerHTML = "&nbsp;";
@@ -239,15 +170,14 @@ function reset() {
 
         }
 
-        game_loop = setInterval(loop, 600);
+        //game_loop = setInterval(loop, 600);
 
 
     }
     board.reset()
 
-    board.new_piece()
-    board.game_over = false
-    board.score = 0
+    clear_piece('hold')
+
 
     redraw(true);
 
@@ -260,12 +190,12 @@ function reset() {
 function main() {
     document.onkeydown = handleKeyDown; // call this when key pressed
 
-    setupWebGL();
+    //setupWebGL();
 
     board = new Board()
 
-    setupShaders()
-    draw_background()
+    //setupShaders()
+    //draw_background()
     redraw(true)
 
     // for each time tick, update board,
@@ -287,27 +217,8 @@ function main() {
 
     }
 
-    game_loop = setInterval(loop, 1500);
+    //game_loop = setInterval(loop, 800);
 
 
-}
-
-
-// Tetris notes
-// create web audio api context
-var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-
-function playNote(frequency, duration) {
-    // create Oscillator node
-    var oscillator = audioCtx.createOscillator();
-    oscillator.type = 'square';
-    oscillator.frequency.value = frequency; // value in hertz
-    oscillator.connect(audioCtx.destination);
-    oscillator.start();
-    setTimeout(
-        function () {
-            oscillator.stop();
-        }, 100 * duration);
 }
 
