@@ -15,14 +15,13 @@ Controls:
     C to put piece in/out of hold.
 
 
-
 TODO:
-- hold should reset position
-- score system
+- score system modern
 - change das and arr
 - piece generation should kick up 1 if default pos is occupied
 - hold should only work once per piece
 - garbage
 - 180 spins
 - slide
+
 

@@ -142,6 +142,7 @@ class Board {
             this.new_piece()
         } else {
             var temp = this.hold_piece;
+            this.active_piece.reset()
             this.hold_piece = this.active_piece;
             this.active_piece = temp
             this.active_x = 4
@@ -407,6 +408,15 @@ class Tetromino {
         } else {
             tetromino = get_tetronmino(name)
         }
+        this.shape = tetromino.shape
+        this.color = tetromino.color
+        this.name = tetromino.name
+        this.orientation = tetromino.orientation
+
+    }
+    reset(){
+        var tetromino = get_tetronmino(this.name)
+
         this.shape = tetromino.shape
         this.color = tetromino.color
         this.name = tetromino.name
